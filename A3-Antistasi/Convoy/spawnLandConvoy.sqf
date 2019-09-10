@@ -14,13 +14,16 @@
   _road = roadAt _pos;
   _dir = _pos getDir _nextPos;
 
+  _groups = [];
+  _soldiers = [];
+  _vehicle = [];
+
   for "_i" from 0 to ((count _units) - 1) do
   {
     _data = _units select _i;
     _vehicle = [_pos, _dir, _data select 0, _side] call bis_fnc_spawnvehicle;
 
     sleep 0.25;
-    hint "Spawned!";
     _group = _vehicle select 2;
     _crew = _vehicle select 1;
     _vehicle = _vehicle select 0;
@@ -42,7 +45,7 @@
         [_unit] spawn
         {
           private _unit = _this select 0;
-          sleep 5;
+          sleep 3;
           if(vehicle _unit == _unit) then
           {
             deleteVehicle _unit;

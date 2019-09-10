@@ -19,7 +19,8 @@ if(!serverInitDone) then
 
 if(isNil "_destination") exitWith {diag_log "CreateAIAction: No destination given for AI Action"};
 _acceptedTypes = ["attack", "patrol", "reinforce", "convoy", "airstrike"];
-if(isNil "_type" || {!((toLower _type) in _acceptedTypes)}) exitWith {diag_log "CreateAIAction: Type is not in the accepted types"};
+_type = toLower _type;
+if(isNil "_type" || {!(_type in _acceptedTypes)}) exitWith {diag_log "CreateAIAction: Type is not in the accepted types"};
 if(isNil "_side" || {!(_side == Occupants || _side == Invaders)}) exitWith {diag_log "CreateAIAction: Can only create AI for Inv and Occ"};
 
 _convoyID = round (random 100);
@@ -32,7 +33,6 @@ while {_IDinUse} do
 };
 server setVariable [str _convoyID, true, true];
 
-_type = toLower _type;
 _isMarker = _destination isEqualType "";
 _targetString = if(_isMarker) then {_destination} else {str _destination};
 diag_log format ["CreateAIAction[%1]: Started creation of %2 action to %3", _convoyID, _type, _targetString];
@@ -84,6 +84,7 @@ _origin = "";
 _units = [];
 _vehicleCount = 0;
 _cargoCount = 0;
+
 if(_type == "patrol") then
 {
   //TODO rework the origin selection!!
@@ -232,7 +233,6 @@ if(_type == "reinforce") then
 };
 if(_type == "attack") then
 {
-
 };
 if(_type == "airstrike") then
 {
@@ -457,9 +457,9 @@ if(_type == "convoy") then
       if(!_abort) then
       {
         //Deactivated, cause you can't win this mission currently
-        //[[teamPlayer,civilian],"CONVOY",[_text,_taskTitle,_destination], _destinationPos,false,0,true,_taskIcon,true] call BIS_fnc_taskCreate;
-        //[[_side],"CONVOY1",[format ["A convoy from %1 to %3, it's about to depart at %2. Protect it from any possible attack.",_nameOrigin,_displayTime,_nameDest],"Protect Convoy",_destination],_destinationPos,false,0,true,"run",true] call BIS_fnc_taskCreate;
-        //missionsX pushBack ["CONVOY","CREATED"]; publicVariable "missionsX";
+        [[teamPlayer,civilian],"CONVOY",[_text,_taskTitle,_destination], _destinationPos,false,0,true,_taskIcon,true] call BIS_fnc_taskCreate;
+        [[_side],"CONVOY1",[format ["A convoy from %1 to %3, it's about to depart at %2. Protect it from any possible attack.",_nameOrigin,_displayTime,_nameDest],"Protect Convoy",_destination],_destinationPos,false,0,true,"run",true] call BIS_fnc_taskCreate;
+        missionsX pushBack ["CONVOY","CREATED"]; publicVariable "missionsX";
         //Deactivated for debug
         //sleep (_timeLimit * 60);
 
