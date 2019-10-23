@@ -9,18 +9,22 @@ _unit allowFleeing 0;
 _typeX = typeOf _unit;
 
 _skill = (0.6 / skillMult + 0.015 * skillFIA);
-if (!activeGREF) then {if (not((uniform _unit) in uniformsSDK)) then {[_unit] call A3A_fnc_reDress}};
+if (!activeGREF) then {if (not((uniform _unit) in allRebelUniforms)) then {[_unit] call A3A_fnc_reDress}};
 
-//if ((!isMultiplayer) and (leader _unit == theBoss)) then {_skill = _skill + 0.1};
+removeAllWeapons _unit;
+if (unlockedHeadgear isEqualTo []) then {removeHeadgear _unit} else {removeHeadgear _unit; _unit addHeadgear (selectRandom unlockedHeadgear)};
+if (unlockedVests isEqualTo []) then {removeVest _unit} else {removeVest _unit; _unit addVest (selectRandom unlockedVests)};
+if (unlockedBackpacks isEqualTo []) then {removeBackpack _unit} else {removeBackpack _unit; _unit addBackpack (selectRandom unlockedBackpacks)};
+
 _unit setSkill _skill;
 if (_typeX in SDKSniper) then
 	{
-	if (count unlockedSN > 0) then
+	if (count unlockedSniperRifles > 0) then
 		{
 		_magazines = getArray (configFile / "CfgWeapons" / (primaryWeapon _unit) / "magazines");
 		{_unit removeMagazines _x} forEach _magazines;
 		_unit removeWeaponGlobal (primaryWeapon _unit);
-		[_unit, selectRandom unlockedSN, 8, 0] call BIS_fnc_addWeapon;
+		[_unit, selectRandom unlockedSniperRifles, 8, 0] call BIS_fnc_addWeapon;
 		if (count unlockedOptics > 0) then
 			{
 			_compatibleX = [primaryWeapon _unit] call BIS_fnc_compatibleItems;
@@ -35,11 +39,6 @@ if (_typeX in SDKSniper) then
 	}
 else
 	{
-	if (random 40 < skillFIA) then
-		{
-		//PBP - Horrible Helmets set
-		if (getNumber (configfile >> "CfgWeapons" >> headgear _unit >> "ItemInfo" >> "HitpointsProtectionInfo" >> "Head" >> "armor") < 2) then {removeHeadgear _unit;_unit addHeadgear (selectRandom armoredHeadgear)};
-		};
 	if ((_typeX in SDKMil) or (_typeX == staticCrewTeamPlayer)) then
 		{
 		[_unit,unlockedRifles] call A3A_fnc_randomRifle;
@@ -49,7 +48,6 @@ else
 				{
 				_unit addbackpack (unlockedBackpacks select 0);
 				[_unit, selectRandom unlockedAA, 2, 0] call BIS_fnc_addWeapon;
-				//removeBackpack _unit;
 				};
 			};
 		}
@@ -57,9 +55,9 @@ else
 		{
 		if (_typeX in SDKMG) then
 			{
-			if (count unlockedMG > 0) then
+			if (count unlockedMachineGuns > 0) then
 				{
-				[_unit,unlockedMG] call A3A_fnc_randomRifle;
+				[_unit,unlockedMachineGuns] call A3A_fnc_randomRifle;
 				}
 			else
 				{
@@ -70,9 +68,9 @@ else
 			{
 			if (_typeX in SDKGL) then
 				{
-				if (count unlockedGL > 0) then
+				if (count unlockedGrenadeLaunchers > 0) then
 					{
-					[_unit,unlockedGL] call A3A_fnc_randomRifle;
+					[_unit,unlockedGrenadeLaunchers] call A3A_fnc_randomRifle;
 					}
 				else
 					{
@@ -144,15 +142,15 @@ if (!haveRadio) then
 	if ((_unit != leader _unit) and (_typeX != staticCrewTeamPlayer)) then {_unit unlinkItem (_unit call A3A_fnc_getRadio)};
 	};
 
-if ({if (_x in smokeGrenade) exitWith {1}} count unlockedMagazines > 0) then {_unit addMagazines [selectRandom smokeGrenade,2]};
+if ({if (_x in allSmokeGrenades) exitWith {1}} count unlockedMagazines > 0) then {_unit addMagazines [selectRandom allSmokeGrenades,2]};
 if !(hasIFA) then
 	{
 	if ((sunOrMoon < 1) and (_typeX != SDKUnarmed)) then
 		{
 		if (haveNV) then
 			{
-			if (hmd _unit == "") then {_unit linkItem (selectRandom unlockedNVG)};
-			_pointers = attachmentLaser arrayIntersect unlockedItems;
+			if (hmd _unit == "") then {_unit linkItem (selectRandom unlockedNVGs)};
+			_pointers = allLaserAttachments arrayIntersect unlockedItems;
 			if !(_pointers isEqualTo []) then
 				{
 				_pointers = _pointers arrayIntersect ((primaryWeapon _unit) call BIS_fnc_compatibleItems);
@@ -173,7 +171,7 @@ if !(hasIFA) then
 				_unit unassignItem _hmd;
 				_unit removeItem _hmd;
 				};
-			_flashlights = attachmentLight arrayIntersect unlockedItems;
+			_flashlights = allLightAttachments arrayIntersect unlockedItems;
 			if !(_flashlights isEqualTo []) then
 				{
 				_flashlights = _flashlights arrayIntersect ((primaryWeapon _unit) call BIS_fnc_compatibleItems);
